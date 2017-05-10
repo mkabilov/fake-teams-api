@@ -1,5 +1,0 @@
-package: github.bus.zalan.do/mkabilov/teams-api
-import:
-- package: github.bus.zalan.do/acid/postgres-operator
-  subpackages:
-  - pkg/util/teams
