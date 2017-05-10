@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/ikitiki/postgres-operator/pkg/util/teams"
 )
 
 var (
@@ -24,6 +22,34 @@ var (
 )
 
 type myHandler struct{}
+
+type InfrastructureAccount struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Provider    string `json:"provider"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+	Owner       string `json:"owner"`
+	OwnerDn     string `json:"owner_dn"`
+	Disabled    bool   `json:"disabled"`
+}
+
+type Team struct {
+	Dn           string   `json:"dn"`
+	Id           string   `json:"id"`
+	TeamName     string   `json:"id_name"`
+	TeamId       string   `json:"team_id"`
+	Type         string   `json:"official"`
+	FullName     string   `json:"name"`
+	Aliases      []string `json:"alias"`
+	Mails        []string `json:"mail"`
+	Members      []string `json:"member"`
+	CostCenter   string   `json:"cost_center"`
+	DeliveryLead string   `json:"delivery_lead"`
+	ParentTeamId string   `json:"parent_team_id"`
+
+	InfrastructureAccounts []InfrastructureAccount `json:"infrastructure-accounts"`
+}
 
 func main() {
 	server := http.Server{
@@ -48,7 +74,7 @@ func testTeam(teamName string, w http.ResponseWriter) {
 	id := crc32.ChecksumIEEE([]byte(teamName))
 	rand.Seed(int64(id))
 
-	team := teams.Team{
+	team := Team{
 		Id:       teamName,
 		TeamId:   strconv.Itoa(int(id)),
 		TeamName: strings.ToUpper(teamName),
