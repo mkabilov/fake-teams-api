@@ -86,8 +86,8 @@ func main() {
 			os.Exit(1)
 		}
 	}()
-
 	fmt.Printf("Listening on %d\n", port)
+	
 	sig := <-sigs
 	fmt.Printf("Got %+v signal. Shutting down\n", sig)
 }

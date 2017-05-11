@@ -11,4 +11,4 @@ spec:
     spec:
       containers:
       - name: fake-teams-api
-        image: pierone.stups.zalan.do/acid/fake-teamapi:0.1
+        image: ikitiki/fake-teams-api:latest
