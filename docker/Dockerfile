@@ -3,4 +3,4 @@ MAINTAINER Murat Kabilov @ Team ACID @ Zalando <murat.kabilov@zalando.de>
 
 COPY build/* /
 
-ENTRYPOINT ["/fake-teamapi", "8000"]
+ENTRYPOINT ["/fake-teamapi", "80"]
