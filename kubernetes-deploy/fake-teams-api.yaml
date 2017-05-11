@@ -12,3 +12,19 @@ spec:
       containers:
       - name: fake-teams-api
         image: ikitiki/fake-teams-api:latest
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: fake-teams-api
+spec:
+  selector:
+    name: fake-teams-api
+  ports:
+  - name: server
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  type: NodePort
