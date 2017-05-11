@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"encoding/json"
 	"fmt"
 	"hash/crc32"
@@ -9,6 +10,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"syscall"
+	"os/signal"
 )
 
 var (
@@ -52,12 +55,36 @@ type Team struct {
 }
 
 func main() {
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM) // Push signals into channel
+
+	if len(os.Args) < 2 {
+		fmt.Printf("Usage %s {port}\n", os.Args[0])
+		os.Exit(1)
+	}
+
+	port, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		fmt.Printf("Port must be numeric\n")
+		os.Exit(1)
+	}
+
 	server := http.Server{
-		Addr:    ":8000",
+		Addr:    fmt.Sprintf(":%d", port),
 		Handler: &myHandler{},
 	}
 
-	server.ListenAndServe()
+	go func() {
+		err = server.ListenAndServe()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}()
+
+	fmt.Printf("Listening on %d\n", port)
+	sig := <-sigs
+	fmt.Printf("Got %+v signal. Shutting down\n", sig)
 }
 
 func members() []string {
