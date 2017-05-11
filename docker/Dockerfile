@@ -1,6 +1,6 @@
 FROM alpine
-MAINTAINER Murat Kabilov @ Team ACID @ Zalando <murat.kabilov@zalando.de>
+MAINTAINER Murat Kabilov <murat@kabilov.com>
 
 COPY build/* /
 
-ENTRYPOINT ["/fake-teamapi", "80"]
+ENTRYPOINT ["/fake-teams-api", "80"]

@@ -1,10 +1,10 @@
 .PHONY: clean local linux macos docker push
 
-BINARY ?= fake-teamapi
+BINARY ?= fake-teams-api
 BUILD_FLAGS ?= -v
 LOCAL_BUILD_FLAGS ?= $(BUILD_FLAGS) -i
 DOCKERFILE = docker/Dockerfile
-IMAGE ?= pierone.stups.zalan.do/acid/$(BINARY)
+IMAGE ?= ikitiki/$(BINARY)
 VERSION ?= $(shell git describe --tags --always --dirty)
 TAG ?= $(VERSION)
 SOURCES = main.go
