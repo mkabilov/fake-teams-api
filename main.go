@@ -123,7 +123,7 @@ func testTeam(teamName string, w http.ResponseWriter) {
 
 	m, err := json.Marshal(team)
 	if err != nil {
-		io.WriteString(w, fmt.Sprintf("Can't marshal: %s", err))
+		fmt.Fprintf(w, "Can't marshal: %s", err)
 	}
 	w.Header().Set("Content-Type", "application/json")
 
