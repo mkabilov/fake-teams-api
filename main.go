@@ -1,22 +1,27 @@
 package main
 
 import (
-	"os"
 	"encoding/json"
 	"fmt"
 	"hash/crc32"
 	"io"
 	"math/rand"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 	"syscall"
-	"os/signal"
+)
+
+const (
+	membersCount = 10
+	emailDomain  = "example.com"
 )
 
 var (
-	NameFirstLetters = []byte("abcdefghijklmnopqrstuvwz")
-	LastNames        = []string{
+	nameFirstLetters = []byte("abcdefghijklmnopqrstuvwz")
+	lastNames        = []string{
 		"frerichs", "hengst", "kloth", "orth", "popp", "steigerwald", "kley", "voegele", "ostermeier",
 		"schley", "eckel", "kaeser", "holzner", "klostermann", "ostertag", "weishaupt", "gotte", "feiler", "mast",
 		"hielscher", "haertel", "moeller", "kramer", "stief", "kissel", "gottschlich", "drechsler", "lucas", "till",
@@ -42,14 +47,14 @@ type Team struct {
 	Id           string   `json:"id"`
 	TeamName     string   `json:"id_name"`
 	TeamId       string   `json:"team_id"`
-	Type         string   `json:"official"`
+	Type         string   `json:"type"`
 	FullName     string   `json:"name"`
-	Aliases      []string `json:"alias"`
+	Aliases      []string `json:"alias,omitempty"`
 	Mails        []string `json:"mail"`
 	Members      []string `json:"member"`
-	CostCenter   string   `json:"cost_center"`
-	DeliveryLead string   `json:"delivery_lead"`
-	ParentTeamId string   `json:"parent_team_id"`
+	CostCenter   string   `json:"cost_center,omitempty"`
+	DeliveryLead string   `json:"delivery_lead,omitempty"`
+	ParentTeamId string   `json:"parent_team_id,omitempty"`
 
 	InfrastructureAccounts []InfrastructureAccount `json:"infrastructure-accounts"`
 }
@@ -88,10 +93,10 @@ func main() {
 }
 
 func members() []string {
-	res := make([]string, 0)
-	for i := 0; i < 10; i++ {
-		name := NameFirstLetters[rand.Intn(len(NameFirstLetters))]
-		res = append(res, string(name)+LastNames[rand.Intn(len(LastNames))])
+	res := make([]string, membersCount)
+	for i := 0; i < membersCount; i++ {
+		name := nameFirstLetters[rand.Intn(len(nameFirstLetters))]
+		res[i] = string(name) + lastNames[rand.Intn(len(lastNames))]
 	}
 
 	return res
@@ -101,13 +106,19 @@ func testTeam(teamName string, w http.ResponseWriter) {
 	id := crc32.ChecksumIEEE([]byte(teamName))
 	rand.Seed(int64(id))
 
+	teamType := "official"
+	if id%2 == 0 {
+		teamType = "virtual"
+	}
+
 	team := Team{
 		Id:       teamName,
 		TeamId:   strconv.Itoa(int(id)),
 		TeamName: strings.ToUpper(teamName),
 		Members:  members(),
 		FullName: strings.Title(teamName),
-		Mails:    []string{fmt.Sprintf("%s@example.com", teamName)},
+		Mails:    []string{fmt.Sprintf("%s@%s", teamName, emailDomain)},
+		Type:     teamType,
 	}
 
 	m, err := json.Marshal(team)
@@ -120,11 +131,12 @@ func testTeam(teamName string, w http.ResponseWriter) {
 }
 
 func badRequest(w http.ResponseWriter) {
-	w.WriteHeader(400)
+	w.WriteHeader(http.StatusBadRequest)
 	w.Write([]byte("Bad request"))
 }
 
 func (*myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Printf("Request: %s\n", r.URL.Path)
 	if !strings.HasPrefix(r.URL.Path, "/teams") {
 		badRequest(w)
 		return
