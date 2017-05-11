@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: fake-team-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: fake-team-api
+    spec:
+      containers:
+      - name: fake-team-api
+        image: pierone.stups.zalan.do/acid/fake-teamapi:0.1

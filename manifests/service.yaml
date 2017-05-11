@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fake-team-api
+spec:
+  selector:
+    name: fake-team-api
+  ports:
+  - name: server
+    port: 8000
+    protocol: TCP
+    targetPort: 8000
+  type: NodePort
