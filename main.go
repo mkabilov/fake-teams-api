@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"hash/crc32"
-	"io"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -80,16 +80,15 @@ func main() {
 	}
 
 	go func() {
-		err = server.ListenAndServe()
+		err := server.ListenAndServe()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			log.Fatal(err)
 		}
 	}()
-	fmt.Printf("Listening on %d\n", port)
-	
+	log.Printf("Listening on %d\n", port)
+
 	sig := <-sigs
-	fmt.Printf("Got %+v signal. Shutting down\n", sig)
+	log.Printf("Got %+v signal. Shutting down\n", sig)
 }
 
 func members() []string {
@@ -136,7 +135,7 @@ func badRequest(w http.ResponseWriter) {
 }
 
 func (*myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("Request: %s\n", r.URL.Path)
+	log.Printf("Request: %s\n", r.URL.Path)
 	if !strings.HasPrefix(r.URL.Path, "/teams") {
 		badRequest(w)
 		return
